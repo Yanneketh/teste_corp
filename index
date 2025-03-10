@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventário de Celulares</title>
+    <script>
+        async function fetchCelulares() {
+            try {
+                console.log("Fetching celulares...");
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao buscar celulares.");
+                }
+
+                const celulares = await response.json();
+                const celularesList = document.getElementById("celularesList");
+                celularesList.innerHTML = "";
+
+                celulares.forEach(celular => {
+                    const li = document.createElement("li");
+                    li.textContent = `IMEI: ${celular.imei}, Modelo: ${celular.modelo}, Marca: ${celular.marca}`;
+                    celularesList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("Error fetching celulares:", error);
+                alert(error.message);
+            }
+        }
+
+        async function addCelular() {
+            const imei = document.getElementById("imei").value;
+            const modelo = document.getElementById("modelo").value;
+            const marca = document.getElementById("marca").value;
+            
+            try {
+                console.log("Adding celular...");
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ imei, modelo, marca })
+                });
+
+                if (response.ok) {
+                    alert("Celular cadastrado com sucesso!");
+                    fetchCelulares();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Erro ao cadastrar celular.");
+                }
+            } catch (error) {
+                console.error("Error adding celular:", error);
+                alert(error.message);
+            }
+        }
+
+        window.onload = fetchCelulares;
+    </script>
+</head>
+<body>
+    <h1>Inventário de Celulares</h1>
+    <ul id="celularesList"></ul>
+    <h2>Adicionar Celular</h2>
+    <form onsubmit="event.preventDefault(); addCelular();">
+        <label for="imei">IMEI:</label>
+        <input type="text" id="imei" required>
+        <br>
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" required>
+        <br>
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" required>
+        <br>
+        <button type="submit">Adicionar</button>
+    </form>
+</body>
+</html>
+
