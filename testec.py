@@ -45,6 +45,9 @@ def get_celulares():
             cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM CADASTRO")
             celulares = cursor.fetchall()
+            print(f"Celulares recuperados: {celulares}")  # Verifica o conteúdo dos dados
+            if not celulares:  # Verifica se a consulta não retornou nada
+                return jsonify({"message": "Nenhum celular encontrado"}), 404
             response = make_response(jsonify(celulares))
             response.headers['Access-Control-Allow-Origin'] = '*'
             return response
@@ -53,7 +56,7 @@ def get_celulares():
         return jsonify({"error": f"Erro ao conectar ao banco de dados: {str(e)}"}), 500
     except Exception as e:
         print(f"Erro: {str(e)}")
-        return jsonify({"error": str(e)}), 500)
+        return jsonify({"error": str(e)}), 500
 
 # Rota POST para adicionar um novo celular
 @app.route("/CADASTRO", methods=["POST"])
@@ -84,12 +87,42 @@ def add_celular():
         print(f"Erro: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+# Rota PUT para atualizar um celular pelo número de série (ns)
+@app.route("/CADASTRO/<ns>", methods=["PUT"])
+def update_celular(ns):
+    try:
+        data = request.json
+        modelo = data.get("modelo")
+        responsavel = data.get("responsavel")
+        
+        # Validação dos dados de entrada
+        if not modelo or not responsavel:
+            return jsonify({"error": "Todos os campos são obrigatórios"}), 400
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            print(f"Atualizando celular com ns: {ns}, modelo: {modelo}, responsavel: {responsavel}")
+            cursor.execute("UPDATE CADASTRO SET modelo = %s, responsavel = %s WHERE ns = %s", (modelo, responsavel, ns))
+            conn.commit()
+            if cursor.rowcount > 0:
+                response = make_response(jsonify({"message": f"Celular com número de série {ns} atualizado com sucesso!"}), 200)
+                response.headers['Access-Control-Allow-Origin'] = '*'
+                return response
+            return jsonify({"message": "Celular não encontrado"}), 404
+    except mysql.connector.Error as e:
+        print(f"Erro ao conectar ao banco de dados: {str(e)}")
+        return jsonify({"error": f"Erro ao conectar ao banco de dados: {str(e)}"}), 500
+    except Exception as e:
+        print(f"Erro: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 # Rota DELETE para remover um celular pelo número de série (ns)
 @app.route("/CADASTRO/<ns>", methods=["DELETE"])
 def delete_celular(ns):
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
+            print(f"Deletando celular com ns: {ns}")
             cursor.execute("DELETE FROM CADASTRO WHERE ns = %s", (ns,))
             conn.commit()
             if cursor.rowcount > 0:
@@ -106,4 +139,3 @@ def delete_celular(ns):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
