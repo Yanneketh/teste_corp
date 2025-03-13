@@ -7,7 +7,7 @@
         async function fetchCelulares() {
             try {
                 console.log("Fetching celulares...");
-                const response = await fetch("http://127.0.0.1:5000/CADASTRO", {
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json"
@@ -24,7 +24,7 @@
 
                 celulares.forEach(celular => {
                     const li = document.createElement("li");
-                    li.textContent = `Número de Série: ${celular.ns}, Modelo: ${celular.modelo}, Responsável: ${celular.responsavel}`;
+                    li.textContent = `IMEI: ${celular.imei}, Modelo: ${celular.modelo}, Marca: ${celular.marca}`;
                     celularesList.appendChild(li);
                 });
             } catch (error) {
@@ -34,18 +34,18 @@
         }
 
         async function addCelular() {
-            const ns = document.getElementById("ns").value;
+            const imei = document.getElementById("imei").value;
             const modelo = document.getElementById("modelo").value;
-            const responsavel = document.getElementById("responsavel").value;
+            const marca = document.getElementById("marca").value;
             
             try {
                 console.log("Adding celular...");
-                const response = await fetch("http://127.0.0.1:5000/CADASTRO", {
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ ns, modelo, responsavel })
+                    body: JSON.stringify({ imei, modelo, marca })
                 });
 
                 if (response.ok) {
@@ -69,14 +69,14 @@
     <ul id="celularesList"></ul>
     <h2>Adicionar Celular</h2>
     <form onsubmit="event.preventDefault(); addCelular();">
-        <label for="ns">Número de Série:</label>
-        <input type="text" id="ns" required>
+        <label for="imei">IMEI:</label>
+        <input type="text" id="imei" required>
         <br>
         <label for="modelo">Modelo:</label>
         <input type="text" id="modelo" required>
         <br>
-        <label for="responsavel">Responsável:</label>
-        <input type="text" id="responsavel" required>
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" required>
         <br>
         <button type="submit">Adicionar</button>
     </form>
