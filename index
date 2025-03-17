@@ -6,9 +6,9 @@
     <title>Inventário de Celulares</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script>
+        // Função para buscar e exibir a lista de celulares
         async function fetchCelulares() {
             try {
-                console.log("Fetching celulares...");
                 const response = await fetch("http://127.0.0.1:5000/celulares", {
                     method: "GET",
                     headers: {
@@ -21,6 +21,7 @@
                 }
 
                 const celulares = await response.json();
+                console.log("Celulares recebidos:", celulares); // Log para depuração
                 const celularesList = document.getElementById("celularesList");
                 celularesList.innerHTML = "";
 
@@ -36,20 +37,19 @@
                             </td>
                         </tr>`;
                 });
-
             } catch (error) {
                 console.error("Error fetching celulares:", error);
                 alert(error.message);
             }
         }
 
+        // Função para adicionar um celular
         async function addCelular() {
             const ns = document.getElementById("ns").value;
             const modelo = document.getElementById("modelo").value;
             const responsavel = document.getElementById("responsavel").value;
 
             try {
-                console.log("Adding celular...");
                 const response = await fetch("http://127.0.0.1:5000/celulares", {
                     method: "POST",
                     headers: {
@@ -71,21 +71,7 @@
             }
         }
 
-        async function deleteCelular(ns) {
-            if (confirm("Tem certeza que deseja excluir este celular?")) {
-                try {
-                    console.log(`Tentando excluir celular com número de série: ${ns}`);
-                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, { method: "DELETE" });
-                    if (!response.ok) throw new Error("Erro ao excluir celular.");
-                    alert("Celular excluído com sucesso!");
-                    fetchCelulares();
-                } catch (error) {
-                    console.error("Error deleting celular:", error);
-                    alert(error.message);
-                }
-            }
-        }
-
+        // Função para editar um celular
         async function editCelular(ns) {
             const modelo = prompt("Digite o novo modelo:");
             const responsavel = prompt("Digite o novo responsável:");
@@ -99,9 +85,14 @@
                         },
                         body: JSON.stringify({ modelo, responsavel })
                     });
-                    if (!response.ok) throw new Error("Erro ao atualizar celular.");
-                    alert("Celular atualizado com sucesso!");
-                    fetchCelulares();
+
+                    if (response.ok) {
+                        alert("Celular atualizado com sucesso!");
+                        fetchCelulares();
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Erro ao atualizar celular.");
+                    }
                 } catch (error) {
                     console.error("Error updating celular:", error);
                     alert(error.message);
@@ -109,6 +100,30 @@
             }
         }
 
+        // Função para excluir um celular
+        async function deleteCelular(ns) {
+            console.log("Número de série recebido para exclusão:", ns); // Log para depuração
+            if (confirm("Tem certeza que deseja excluir este celular?")) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
+                        method: "DELETE"
+                    });
+
+                    if (response.ok) {
+                        alert("Celular excluído com sucesso!");
+                        fetchCelulares();
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Erro ao excluir celular.");
+                    }
+                } catch (error) {
+                    console.error("Error deleting celular:", error);
+                    alert(error.message);
+                }
+            }
+        }
+
+        // Carrega a lista de celulares ao abrir a página
         window.onload = fetchCelulares;
     </script>
 </head>
@@ -143,6 +158,4 @@
         <button type="submit" class="btn btn-success mt-3">Adicionar Celular</button>
     </form>
 </body>
-</html>
-
 </html>
