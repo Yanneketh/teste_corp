@@ -8,12 +8,8 @@
     <script>
         async function fetchCelulares() {
             try {
-<<<<<<< Updated upstream
-                const response = await fetch("http://127.0.0.1:5000/celulares", {
-=======
                 console.log("Fetching celulares...");
-                const response = await fetch("http://127.0.0.1:5000/CADASTRO", {
->>>>>>> Stashed changes
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json"
@@ -26,24 +22,21 @@
 
                 const celulares = await response.json();
                 const celularesList = document.getElementById("celularesList");
-<<<<<<< Updated upstream
-                celularesList.innerHTML = ""; // Limpa a lista/tabela
-=======
                 celularesList.innerHTML = "";
 
->>>>>>> Stashed changes
                 celulares.forEach(celular => {
                     celularesList.innerHTML += `
                         <tr>
-                            <td>${celular.imei}</td>
+                            <td>${celular.ns}</td>
                             <td>${celular.modelo}</td>
-                            <td>${celular.marca}</td>
+                            <td>${celular.responsavel}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="editCelular('${celular.imei}')">Editar</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCelular('${celular.imei}')">Excluir</button>
+                                <button class="btn btn-warning btn-sm" onclick="editCelular('${celular.ns}')">Editar</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCelular('${celular.ns}')">Excluir</button>
                             </td>
                         </tr>`;
                 });
+
             } catch (error) {
                 console.error("Error fetching celulares:", error);
                 alert(error.message);
@@ -51,34 +44,20 @@
         }
 
         async function addCelular() {
-            const imei = document.getElementById("imei").value;
+            const ns = document.getElementById("ns").value;
             const modelo = document.getElementById("modelo").value;
-<<<<<<< Updated upstream
-            const marca = document.getElementById("marca").value;
+            const responsavel = document.getElementById("responsavel").value;
 
             try {
-                const response = await fetch("http://127.0.0.1:5000/celulares", {
-=======
-            const responsavel = document.getElementById("responsavel").value;
-            
-            try {
                 console.log("Adding celular...");
-                const response = await fetch("http://127.0.0.1:5000/CADASTRO", {
->>>>>>> Stashed changes
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-<<<<<<< Updated upstream
-                    body: JSON.stringify({ imei, modelo, marca })
-=======
                     body: JSON.stringify({ ns, modelo, responsavel })
->>>>>>> Stashed changes
                 });
 
-<<<<<<< Updated upstream
-        async function deleteCelular(imei) {
-=======
                 if (response.ok) {
                     alert("Celular cadastrado com sucesso!");
                     fetchCelulares();
@@ -93,15 +72,38 @@
         }
 
         async function deleteCelular(ns) {
->>>>>>> Stashed changes
             if (confirm("Tem certeza que deseja excluir este celular?")) {
                 try {
-                    const response = await fetch(`http://127.0.0.1:5000/celulares/${imei}`, { method: "DELETE" });
+                    console.log(`Tentando excluir celular com número de série: ${ns}`);
+                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, { method: "DELETE" });
                     if (!response.ok) throw new Error("Erro ao excluir celular.");
                     alert("Celular excluído com sucesso!");
                     fetchCelulares();
                 } catch (error) {
                     console.error("Error deleting celular:", error);
+                    alert(error.message);
+                }
+            }
+        }
+
+        async function editCelular(ns) {
+            const modelo = prompt("Digite o novo modelo:");
+            const responsavel = prompt("Digite o novo responsável:");
+
+            if (modelo && responsavel) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ modelo, responsavel })
+                    });
+                    if (!response.ok) throw new Error("Erro ao atualizar celular.");
+                    alert("Celular atualizado com sucesso!");
+                    fetchCelulares();
+                } catch (error) {
+                    console.error("Error updating celular:", error);
                     alert(error.message);
                 }
             }
@@ -115,9 +117,9 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>IMEI</th>
+                <th>Número de Série</th>
                 <th>Modelo</th>
-                <th>Marca</th>
+                <th>Responsável</th>
                 <th>Ações</th>
             </tr>
         </thead>
@@ -127,22 +129,20 @@
     <h2 class="mt-4">Adicionar Celular</h2>
     <form class="row g-3" onsubmit="event.preventDefault(); addCelular();">
         <div class="col-md-4">
-            <label for="imei" class="form-label">IMEI</label>
-            <input type="text" class="form-control" id="imei" required>
+            <label for="ns" class="form-label">Número de Série</label>
+            <input type="text" class="form-control" id="ns" required>
         </div>
         <div class="col-md-4">
             <label for="modelo" class="form-label">Modelo</label>
             <input type="text" class="form-control" id="modelo" required>
         </div>
         <div class="col-md-4">
-            <label for="marca" class="form-label">Marca</label>
-            <input type="text" class="form-control" id="marca" required>
+            <label for="responsavel" class="form-label">Responsável</label>
+            <input type="text" class="form-control" id="responsavel" required>
         </div>
-        <div class="col-12">
-            <button type="submit" class="btn btn-primary">Adicionar</button>
-        </div>
+        <button type="submit" class="btn btn-success mt-3">Adicionar Celular</button>
     </form>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+

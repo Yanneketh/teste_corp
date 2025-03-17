@@ -1,13 +1,11 @@
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, make_response
 from flask_cors import CORS
 import mysql.connector
 import os
 import re
 from contextlib import contextmanager
-<<<<<<< Updated upstream
 from functools import wraps
 import time
-=======
 
 # Verificar as variáveis de ambiente com valores padrão
 DB_HOST = os.getenv("DB_HOST", "localhost")
@@ -19,7 +17,6 @@ print("DB_HOST:", DB_HOST)
 print("DB_USER:", DB_USER)
 print("DB_PASSWORD:", DB_PASSWORD)
 print("DB_NAME:", DB_NAME)
->>>>>>> Stashed changes
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
@@ -53,19 +50,15 @@ def retry_on_failure(max_retries=3, delay=2):
 def get_db_connection():
     log_env_variables()
     conn = mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME
+        host="localhost",
+        user="root",
+        password="2020",
+        database="corporativos"
     )
     try:
         yield conn
     finally:
         conn.close()
-
-# Função para validar o IMEI
-def validar_imei(imei):
-    return bool(re.match(r'^\d{15}$', imei))
 
 # Rota raiz
 @app.route("/", methods=["GET"])
@@ -117,17 +110,13 @@ def get_celulares():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM celulares")
+            cursor.execute("SELECT * FROM CADASTRO")
             celulares = cursor.fetchall()
-<<<<<<< Updated upstream
             if not celulares:
                 return jsonify({"message": "Nenhum celular encontrado"}), 404
-            return jsonify(celulares), 200
-=======
             response = make_response(jsonify(celulares))
             response.headers['Access-Control-Allow-Origin'] = '*'
             return response
->>>>>>> Stashed changes
     except mysql.connector.Error as e:
         return jsonify({"error": "Erro ao conectar ao banco de dados"}), 500
 
@@ -137,27 +126,24 @@ def get_celulares():
 def add_celular():
     try:
         data = request.json
-        imei = data.get("imei")
+        ns = data.get("ns")
         modelo = data.get("modelo")
-        marca = data.get("marca")
+        responsavel = data.get("responsavel")
         
-        if not imei or not modelo or not marca:
+        if not ns or not modelo or not responsavel:
             return jsonify({"error": "Todos os campos são obrigatórios"}), 400
-        if not validar_imei(imei):
-            return jsonify({"error": "IMEI inválido. Deve ter 15 dígitos."}), 400
 
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT 1 FROM celulares WHERE imei = %s", (imei,))
+            cursor.execute("SELECT 1 FROM CADASTRO WHERE ns = %s", (ns,))
             if cursor.fetchone():
-                return jsonify({"error": "IMEI já cadastrado."}), 409
-            cursor.execute("INSERT INTO celulares (imei, modelo, marca) VALUES (%s, %s, %s)", (imei, modelo, marca))
+                return jsonify({"error": "Número de série já cadastrado."}), 409
+            cursor.execute("INSERT INTO CADASTRO (ns, modelo, responsavel) VALUES (%s, %s, %s)", (ns, modelo, responsavel))
             conn.commit()
             return jsonify({"message": "Celular cadastrado com sucesso"}), 201
     except mysql.connector.Error as e:
         return jsonify({"error": "Erro ao conectar ao banco de dados"}), 500
 
-<<<<<<< Updated upstream
 # PUT: Atualizar celular
 @app.route("/celulares/<ns>", methods=["PUT"])
 @retry_on_failure()
@@ -183,16 +169,8 @@ def update_celular(ns):
 # DELETE: Remover celular
 @app.route("/celulares/<ns>", methods=["DELETE"])
 @retry_on_failure()
-=======
-# Rota DELETE para remover um celular pelo número de série (ns)
-@app.route("/CADASTRO/<ns>", methods=["DELETE"])
->>>>>>> Stashed changes
 def delete_celular(ns):
     try:
-        # Validação do número de série
-        if not validar_ns(ns):
-            return jsonify({"error": "Número de série inválido. Deve ser numérico."}), 400
-
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM CADASTRO WHERE ns = %s", (ns,))
@@ -205,4 +183,5 @@ def delete_celular(ns):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
