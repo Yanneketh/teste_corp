@@ -33,7 +33,7 @@ def get_celulares():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT ns, modelo, responsavel FROM CADASTRO")
+            cursor.execute("SELECT ns, modelo, responsavel, setor, marca, senha, chip, email FROM CADASTRO")
             celulares = cursor.fetchall()
             if not celulares:
                 return jsonify({"message": "Nenhum celular encontrado"}), 404
@@ -49,16 +49,25 @@ def add_celular():
         ns = data.get("ns")
         modelo = data.get("modelo")
         responsavel = data.get("responsavel")
+        setor = data.get("setor")
+        marca = data.get("marca")
+        senha = data.get("senha")
+        chip = data.get("chip")
+        email = data.get("email")
 
-        if not ns or not modelo or not responsavel:
-            return jsonify({"error": "Todos os campos são obrigatórios"}), 400
+        if not ns or not modelo or not responsavel or not setor or not marca:
+            return jsonify({"error": "Campos obrigatórios faltando: ns, modelo, responsavel, setor, marca"}), 400
 
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT 1 FROM CADASTRO WHERE ns = %s", (ns,))
             if cursor.fetchone():
                 return jsonify({"error": "Número de série já cadastrado."}), 409
-            cursor.execute("INSERT INTO CADASTRO (ns, modelo, responsavel) VALUES (%s, %s, %s)", (ns, modelo, responsavel))
+            cursor.execute(
+                "INSERT INTO CADASTRO (ns, modelo, responsavel, setor, marca, senha, chip, email) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (ns, modelo, responsavel, setor, marca, senha, chip, email)
+            )
             conn.commit()
             return jsonify({"message": "Celular cadastrado com sucesso"}), 201
     except mysql.connector.Error as e:
@@ -71,13 +80,22 @@ def update_celular(ns):
         data = request.json
         modelo = data.get("modelo")
         responsavel = data.get("responsavel")
+        setor = data.get("setor")
+        marca = data.get("marca")
+        senha = data.get("senha")
+        chip = data.get("chip")
+        email = data.get("email")
 
-        if not modelo or not responsavel:
-            return jsonify({"error": "Todos os campos são obrigatórios"}), 400
+        if not modelo or not responsavel or not setor or not marca:
+            return jsonify({"error": "Campos obrigatórios faltando: modelo, responsavel, setor, marca"}), 400
 
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("UPDATE CADASTRO SET modelo = %s, responsavel = %s WHERE ns = %s", (modelo, responsavel, ns))
+            cursor.execute(
+                "UPDATE CADASTRO SET modelo = %s, responsavel = %s, setor = %s, marca = %s, senha = %s, chip = %s, email = %s "
+                "WHERE ns = %s",
+                (modelo, responsavel, setor, marca, senha, chip, email, ns)
+            )
             conn.commit()
             if cursor.rowcount > 0:
                 return jsonify({"message": "Celular atualizado com sucesso"}), 200

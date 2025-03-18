@@ -5,157 +5,282 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Inventário de Celulares</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script>
-        // Função para buscar e exibir a lista de celulares
-        async function fetchCelulares() {
-            try {
-                const response = await fetch("http://127.0.0.1:5000/celulares", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
+    <style>
+         /* Estilos personalizados */
+        body {
+            background-color: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #5B0627, red); /* Gradiente azul */
+            color: white;
+            padding: 40px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra */
+            text-align: center;
+        }
+        .header h1 {
+            font-family: 'Arial', sans-serif; /* Fonte personalizada */
+            font-size: 3rem; /* Tamanho da fonte */
+            font-weight: bold; /* Negrito */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sombra no texto */
+            margin: 0;
+        }
+        .table-responsive {
+            margin-top: 20px;
 
-                if (!response.ok) {
-                    throw new Error("Erro ao buscar celulares.");
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            margin-top: 10px;
+            background-color: #5B0627;
+        }
+
+.custom-cell {
+    background-color: #5B0627;
+    color: white;
+}
+
+h2 {
+    color: #5B0627;
+    text-align: center;
+    font-family: 'Arial', sans-serif; /* Fonte personalizada */
+    font-size: 2rem; /* Tamanho da fonte */
+    font-weight: bold; /* Negrito */
+    margin-top: 15px;
+    margin-bottom: 15px;
+   
+}
+
+
+    </style>
+<script>
+    // Função para buscar e exibir a lista de celulares
+    async function fetchCelulares() {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/celulares", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
                 }
+            });
 
-                const celulares = await response.json();
-                console.log("Celulares recebidos:", celulares); // Log para depuração
-                const celularesList = document.getElementById("celularesList");
-                celularesList.innerHTML = "";
+           if (!response.ok) {
+                throw new Error("Erro ao buscar celulares.");
+            }
 
+            const celulares = await response.json();
+            console.log("Celulares recebidos:", celulares); // Log para depuração
+            const celularesList = document.getElementById("celularesList");
+            celularesList.innerHTML = "";
+
+            if (celulares.length === 0) {
+                // Exibe uma mensagem se não houver celulares cadastrados
+                celularesList.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center">Nenhum celular cadastrado.</td>
+                    </tr>`;
+
+            } else {
+                // Preenche a tabela com os celulares cadastrados
                 celulares.forEach(celular => {
                     celularesList.innerHTML += `
                         <tr>
-                            <td>${celular.ns}</td>
-                            <td>${celular.modelo}</td>
-                            <td>${celular.responsavel}</td>
+                         <td class="custom-cell">${celular.ns}</td>
+                        <td class="custom-cell">${celular.modelo}</td>
+                        <td class="custom-cell">${celular.responsavel}</td>
+                        <td class="custom-cell">${celular.setor}</td>
+                        <td class="custom-cell">${celular.marca}</td>
+                        <td class="custom-cell">${celular.senha}</td>
+                        <td class="custom-cell">${celular.chip}</td>
+                        <td class="custom-cell">${celular.email}</td>
+
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="editCelular('${celular.ns}')">Editar</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteCelular('${celular.ns}')">Excluir</button>
+                             <button class="btn btn-sm" onclick="editCelular('${celular.ns}')" style="background-color: #5B0627; color: white;">Editar</button>
+<button class="btn  btn-sm" onclick="deleteCelular('${celular.ns}')" style="background-color: #5B0627; color: white;">Excluir</button>
+
                             </td>
                         </tr>`;
                 });
-            } catch (error) {
-                console.error("Error fetching celulares:", error);
-                alert(error.message);
             }
+        } catch (error) {
+            console.error("Error fetching celulares:", error);
+            alert(error.message);
         }
+    }
 
-        // Função para adicionar um celular
-        async function addCelular() {
-            const ns = document.getElementById("ns").value;
-            const modelo = document.getElementById("modelo").value;
-            const responsavel = document.getElementById("responsavel").value;
+    // Função para adicionar um celular
+    async function addCelular() {
+        const ns = document.getElementById("ns").value;
+        const modelo = document.getElementById("modelo").value;
+        const responsavel = document.getElementById("responsavel").value;
+        const setor = document.getElementById("setor").value;
+        const marca = document.getElementById("marca").value;
+        const senha = document.getElementById("senha").value;
+        const chip = document.getElementById("chip").value;
+        const email = document.getElementById("email").value;
 
+        try {
+            const response = await fetch("http://127.0.0.1:5000/celulares", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ ns, modelo, responsavel, setor, marca, senha, chip, email })
+            });
+
+            if (response.ok) {
+                alert("Celular cadastrado com sucesso!");
+                fetchCelulares();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Erro ao cadastrar celular.");
+            }
+        } catch (error) {
+            console.error("Error adding celular:", error);
+            alert(error.message);
+        }
+    }
+
+    // Função para editar um celular
+    async function editCelular(ns) {
+        const modelo = prompt("Digite o novo modelo:");
+        const responsavel = prompt("Digite o novo responsável:");
+        const setor = prompt("Digite o novo setor:");
+        const marca = prompt("Digite a nova marca:");
+        const senha = prompt("Digite a nova senha:");
+        const chip = prompt("Digite o novo chip:");
+        const email = prompt("Digite o novo email:");
+
+        if (modelo && responsavel && setor && marca && senha && chip && email) {
             try {
-                const response = await fetch("http://127.0.0.1:5000/celulares", {
-                    method: "POST",
+                const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ ns, modelo, responsavel })
+                    body: JSON.stringify({ modelo, responsavel, setor, marca, senha, chip, email })
                 });
 
                 if (response.ok) {
-                    alert("Celular cadastrado com sucesso!");
+                    alert("Celular atualizado com sucesso!");
                     fetchCelulares();
                 } else {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || "Erro ao cadastrar celular.");
+                    throw new Error(errorData.error || "Erro ao atualizar celular.");
                 }
             } catch (error) {
-                console.error("Error adding celular:", error);
+                console.error("Error updating celular:", error);
                 alert(error.message);
             }
         }
+    }
 
-        // Função para editar um celular
-        async function editCelular(ns) {
-            const modelo = prompt("Digite o novo modelo:");
-            const responsavel = prompt("Digite o novo responsável:");
+    // Função para excluir um celular
+    async function deleteCelular(ns) {
+        console.log("Número de série recebido para exclusão:", ns); // Log para depuração
+        if (confirm("Tem certeza que deseja excluir este celular?")) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
+                    method: "DELETE"
+                });
 
-            if (modelo && responsavel) {
-                try {
-                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ modelo, responsavel })
-                    });
-
-                    if (response.ok) {
-                        alert("Celular atualizado com sucesso!");
-                        fetchCelulares();
-                    } else {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || "Erro ao atualizar celular.");
-                    }
-                } catch (error) {
-                    console.error("Error updating celular:", error);
-                    alert(error.message);
+                if (response.ok) {
+                    alert("Celular excluído com sucesso!");
+                    fetchCelulares();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Erro ao excluir celular.");
                 }
+            } catch (error) {
+                console.error("Error deleting celular:", error);
+                alert(error.message);
             }
         }
+    }
 
-        // Função para excluir um celular
-        async function deleteCelular(ns) {
-            console.log("Número de série recebido para exclusão:", ns); // Log para depuração
-            if (confirm("Tem certeza que deseja excluir este celular?")) {
-                try {
-                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
-                        method: "DELETE"
-                    });
-
-                    if (response.ok) {
-                        alert("Celular excluído com sucesso!");
-                        fetchCelulares();
-                    } else {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || "Erro ao excluir celular.");
-                    }
-                } catch (error) {
-                    console.error("Error deleting celular:", error);
-                    alert(error.message);
-                }
-            }
-        }
-
-        // Carrega a lista de celulares ao abrir a página
-        window.onload = fetchCelulares;
-    </script>
+    // Carrega a lista de celulares ao abrir a página
+    window.onload = fetchCelulares;
+</script>
 </head>
 <body class="container mt-5">
-    <h1 class="mb-4 text-center">Inventário de Celulares</h1>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Número de Série</th>
-                <th>Modelo</th>
-                <th>Responsável</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody id="celularesList"></tbody>
-    </table>
+    <div class="header text-center">
+        <h1>Inventário de Celulares</h1>
+    </div>
 
-    <h2 class="mt-4">Adicionar Celular</h2>
-    <form class="row g-3" onsubmit="event.preventDefault(); addCelular();">
-        <div class="col-md-4">
-            <label for="ns" class="form-label">Número de Série</label>
-            <input type="text" class="form-control" id="ns" required>
-        </div>
-        <div class="col-md-4">
-            <label for="modelo" class="form-label">Modelo</label>
-            <input type="text" class="form-control" id="modelo" required>
-        </div>
-        <div class="col-md-4">
-            <label for="responsavel" class="form-label">Responsável</label>
-            <input type="text" class="form-control" id="responsavel" required>
-        </div>
-        <button type="submit" class="btn btn-success mt-3">Adicionar Celular</button>
-    </form>
+    <!-- Formulário para Adicionar Celular -->
+    <div class="form-container">
+       <h2>Adicionar Corporativo</h2>
+        <form class="row g-3" onsubmit="event.preventDefault(); addCelular();">
+            <div class="col-md-6 col-lg-4">
+                <label for="ns" class="form-label">Número de Série</label>
+                <input type="text" class="form-control" id="ns" required>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input type="text" class="form-control" id="modelo" required>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="responsavel" class="form-label">Responsável</label>
+                <input type="text" class="form-control" id="responsavel" required>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="setor" class="form-label">Setor</label>
+                <select class="form-select" id="setor" required>
+                    <option value="TI">TI</option>
+                    <option value="RH">RH</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Vendas">Vendas</option>
+                    <option value="Marketing">Marketing</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="marca" class="form-label">Marca</label>
+                <input type="text" class="form-control" id="marca" required>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="text" class="form-control" id="senha">
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="chip" class="form-label">Chip</label>
+                <input type="text" class="form-control" id="chip">
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email">
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-success btn-custom">Adicionar Celular</button>
+            </div>
+        </form>
+    </div>
+
+    <h2>Lista de Corporativos</h2>
+    <div class="table-responsive">
+       <table class="table table-striped table-hover">
+    <thead style="background: linear-gradient(135deg, #5B0627, red); color: white;">
+                <tr>
+                    <th>Número de Série</th>
+                    <th>Modelo</th>
+                    <th>Responsável</th>
+                    <th>Setor</th>
+                    <th>Marca</th>
+                    <th>Senha</th>
+                    <th>Chip</th>
+                    <th>Email</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="celularesList"></tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
