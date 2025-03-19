@@ -206,6 +206,23 @@ h2 {
 
     // Carrega a lista de celulares ao abrir a página
     window.onload = fetchCelulares;
+
+    // Função para filtrar os celulares por setor
+function filtrarPorSetor() {
+    const filtroSetor = document.getElementById("filtroSetor").value.toLowerCase();
+    const linhas = document.querySelectorAll("#celularesList tr");
+
+
+
+    linhas.forEach(linha => {
+        const setor = linha.querySelector("td:nth-child(4)").textContent.toLowerCase();
+        if (filtroSetor === "" || setor === filtroSetor) {
+            linha.style.display = ""; // Mostra a linha
+        } else {
+            linha.style.display = "none"; // Oculta a linha
+        }
+    });
+}
 </script>
 </head>
 <body class="container mt-5">
@@ -263,25 +280,39 @@ h2 {
         </form>
     </div>
 
-    <h2>Lista de Corporativos</h2>
-    <div class="table-responsive">
-       <table class="table table-striped table-hover">
-    <thead style="background: linear-gradient(135deg, #5B0627, red); color: white;">
-                <tr>
-                    <th>Número de Série</th>
-                    <th>Modelo</th>
-                    <th>Responsável</th>
-                    <th>Setor</th>
-                    <th>Marca</th>
-                    <th>Senha</th>
-                    <th>Chip</th>
-                    <th>Email</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="celularesList"></tbody>
-        </table>
-    </div>
+<h2>Lista de Corporativos</h2>
+<div class="mb-3">
+    <label for="filtroSetor" class="form-label">Filtrar por Setor:</label>
+    <select class="form-select" id="filtroSetor" onchange="filtrarPorSetor()">
+        <option value="">Todos</option>
+        <option value="TI">TI</option>
+        <option value="RH">RH</option>
+        <option value="Financeiro">Financeiro</option>
+        <option value="Vendas">Vendas</option>
+        <option value="Marketing">Marketing</option>
+        <option value="Transportes">Transportes</option>
+        <option value="Coordenadora Operacional">Coordenadora Operacional</option>
+    </select>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <!-- Cabeçalho da tabela -->
+        <thead style="background: linear-gradient(135deg, #5B0627, red); color: white;">
+            <tr>
+                <th>Número de Série</th>
+                <th>Modelo</th>
+                <th>Responsável</th>
+                <th>Setor</th>
+                <th>Marca</th>
+                <th>Senha</th>
+                <th>Chip</th>
+                <th>Email</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="celularesList"></tbody>
+    </table>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
