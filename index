@@ -6,29 +6,28 @@
     <title>Inventário de Celulares</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-         /* Estilos personalizados */
+        /* Estilos personalizados */
         body {
             background-color: #f8f9fa;
         }
         .header {
-            background: linear-gradient(135deg, #5B0627, red); /* Gradiente azul */
+            background: linear-gradient(135deg, #5B0627, red);
             color: white;
             padding: 40px 20px;
             border-radius: 10px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
         .header h1 {
-            font-family: 'Arial', sans-serif; /* Fonte personalizada */
-            font-size: 3rem; /* Tamanho da fonte */
-            font-weight: bold; /* Negrito */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sombra no texto */
+            font-family: 'Arial', sans-serif;
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             margin: 0;
         }
         .table-responsive {
             margin-top: 20px;
-
         }
         .form-container {
             background-color: white;
@@ -40,190 +39,20 @@
             margin-top: 10px;
             background-color: #5B0627;
         }
-
-.custom-cell {
-    background-color: #5B0627;
-    color: white;
-}
-
-h2 {
-    color: #5B0627;
-    text-align: center;
-    font-family: 'Arial', sans-serif; /* Fonte personalizada */
-    font-size: 2rem; /* Tamanho da fonte */
-    font-weight: bold; /* Negrito */
-    margin-top: 15px;
-    margin-bottom: 15px;
-   
-}
-
-
+        .custom-cell {
+            background-color: #5B0627;
+            color: white;
+        }
+        h2 {
+            color: #5B0627;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
     </style>
-<script>
-    // Função para buscar e exibir a lista de celulares
-    async function fetchCelulares() {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/celulares", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-
-           if (!response.ok) {
-                throw new Error("Erro ao buscar celulares.");
-            }
-
-            const celulares = await response.json();
-            console.log("Celulares recebidos:", celulares); // Log para depuração
-            const celularesList = document.getElementById("celularesList");
-            celularesList.innerHTML = "";
-
-            if (celulares.length === 0) {
-                // Exibe uma mensagem se não houver celulares cadastrados
-                celularesList.innerHTML = `
-                    <tr>
-                        <td colspan="9" class="text-center">Nenhum celular cadastrado.</td>
-                    </tr>`;
-
-            } else {
-                // Preenche a tabela com os celulares cadastrados
-                celulares.forEach(celular => {
-                    celularesList.innerHTML += `
-                        <tr>
-                         <td class="custom-cell">${celular.ns}</td>
-                        <td class="custom-cell">${celular.modelo}</td>
-                        <td class="custom-cell">${celular.responsavel}</td>
-                        <td class="custom-cell">${celular.setor}</td>
-                        <td class="custom-cell">${celular.marca}</td>
-                        <td class="custom-cell">${celular.senha}</td>
-                        <td class="custom-cell">${celular.chip}</td>
-                        <td class="custom-cell">${celular.email}</td>
-
-                            <td>
-                             <button class="btn btn-sm" onclick="editCelular('${celular.ns}')" style="background-color: #5B0627; color: white;">Editar</button>
-<button class="btn  btn-sm" onclick="deleteCelular('${celular.ns}')" style="background-color: #5B0627; color: white;">Excluir</button>
-
-                            </td>
-                        </tr>`;
-                });
-            }
-        } catch (error) {
-            console.error("Error fetching celulares:", error);
-            alert(error.message);
-        }
-    }
-
-    // Função para adicionar um celular
-    async function addCelular() {
-        const ns = document.getElementById("ns").value;
-        const modelo = document.getElementById("modelo").value;
-        const responsavel = document.getElementById("responsavel").value;
-        const setor = document.getElementById("setor").value;
-        const marca = document.getElementById("marca").value;
-        const senha = document.getElementById("senha").value;
-        const chip = document.getElementById("chip").value;
-        const email = document.getElementById("email").value;
-
-        try {
-            const response = await fetch("http://127.0.0.1:5000/celulares", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ ns, modelo, responsavel, setor, marca, senha, chip, email })
-            });
-
-            if (response.ok) {
-                alert("Celular cadastrado com sucesso!");
-                fetchCelulares();
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Erro ao cadastrar celular.");
-            }
-        } catch (error) {
-            console.error("Error adding celular:", error);
-            alert(error.message);
-        }
-    }
-
-    // Função para editar um celular
-    async function editCelular(ns) {
-        const modelo = prompt("Digite o novo modelo:");
-        const responsavel = prompt("Digite o novo responsável:");
-        const setor = prompt("Digite o novo setor:");
-        const marca = prompt("Digite a nova marca:");
-        const senha = prompt("Digite a nova senha:");
-        const chip = prompt("Digite o novo chip:");
-        const email = prompt("Digite o novo email:");
-
-        if (modelo && responsavel && setor && marca && senha && chip && email) {
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ modelo, responsavel, setor, marca, senha, chip, email })
-                });
-
-                if (response.ok) {
-                    alert("Celular atualizado com sucesso!");
-                    fetchCelulares();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Erro ao atualizar celular.");
-                }
-            } catch (error) {
-                console.error("Error updating celular:", error);
-                alert(error.message);
-            }
-        }
-    }
-
-    // Função para excluir um celular
-    async function deleteCelular(ns) {
-        console.log("Número de série recebido para exclusão:", ns); // Log para depuração
-        if (confirm("Tem certeza que deseja excluir este celular?")) {
-            try {
-                const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
-                    method: "DELETE"
-                });
-
-                if (response.ok) {
-                    alert("Celular excluído com sucesso!");
-                    fetchCelulares();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Erro ao excluir celular.");
-                }
-            } catch (error) {
-                console.error("Error deleting celular:", error);
-                alert(error.message);
-            }
-        }
-    }
-
-    // Carrega a lista de celulares ao abrir a página
-    window.onload = fetchCelulares;
-
-    // Função para filtrar os celulares por setor
-function filtrarPorSetor() {
-    const filtroSetor = document.getElementById("filtroSetor").value.toLowerCase();
-    const linhas = document.querySelectorAll("#celularesList tr");
-
-
-
-    linhas.forEach(linha => {
-        const setor = linha.querySelector("td:nth-child(4)").textContent.toLowerCase();
-        if (filtroSetor === "" || setor === filtroSetor) {
-            linha.style.display = ""; // Mostra a linha
-        } else {
-            linha.style.display = "none"; // Oculta a linha
-        }
-    });
-}
-</script>
 </head>
 <body class="container mt-5">
     <div class="header text-center">
@@ -232,7 +61,7 @@ function filtrarPorSetor() {
 
     <!-- Formulário para Adicionar Celular -->
     <div class="form-container">
-       <h2>Adicionar Corporativo</h2>
+        <h2>Adicionar Corporativo</h2>
         <form class="row g-3" onsubmit="event.preventDefault(); addCelular();">
             <div class="col-md-6 col-lg-4">
                 <label for="ns" class="form-label">Número de Série</label>
@@ -254,8 +83,8 @@ function filtrarPorSetor() {
                     <option value="Financeiro">Financeiro</option>
                     <option value="Vendas">Vendas</option>
                     <option value="Marketing">Marketing</option>
-                   <option value="Transportes">Transportes</option>
-                   <option value="Coordenadora Operacional">Coordenadora Operacional</option>
+                    <option value="Transportes">Transportes</option>
+                    <option value="Coordenadora Operacional">Coordenadora Operacional</option>
                 </select>
             </div>
             <div class="col-md-6 col-lg-4">
@@ -274,46 +103,310 @@ function filtrarPorSetor() {
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email">
             </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" required>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                </select>
+            </div>
             <div class="col-12">
                 <button type="submit" class="btn btn-success btn-custom">Adicionar Celular</button>
             </div>
         </form>
     </div>
 
-<h2>Lista de Corporativos</h2>
-<div class="mb-3">
-    <label for="filtroSetor" class="form-label">Filtrar por Setor:</label>
-    <select class="form-select" id="filtroSetor" onchange="filtrarPorSetor()">
-        <option value="">Todos</option>
-        <option value="TI">TI</option>
-        <option value="RH">RH</option>
-        <option value="Financeiro">Financeiro</option>
-        <option value="Vendas">Vendas</option>
-        <option value="Marketing">Marketing</option>
-        <option value="Transportes">Transportes</option>
-        <option value="Coordenadora Operacional">Coordenadora Operacional</option>
-    </select>
-</div>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <!-- Cabeçalho da tabela -->
-        <thead style="background: linear-gradient(135deg, #5B0627, red); color: white;">
-            <tr>
-                <th>Número de Série</th>
-                <th>Modelo</th>
-                <th>Responsável</th>
-                <th>Setor</th>
-                <th>Marca</th>
-                <th>Senha</th>
-                <th>Chip</th>
-                <th>Email</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody id="celularesList"></tbody>
-    </table>
-</div>
+    <h2>Lista de Corporativos</h2>
+    <div class="mb-3">
+        <label for="filtroSetor" class="form-label">Filtrar por Setor:</label>
+        <select class="form-select" id="filtroSetor" onchange="filtrarPorSetor()">
+            <option value="">Todos</option>
+            <option value="TI">TI</option>
+            <option value="RH">RH</option>
+            <option value="Financeiro">Financeiro</option>
+            <option value="Vendas">Vendas</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Transportes">Transportes</option>
+            <option value="Coordenadora Operacional">Coordenadora Operacional</option>
+        </select>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <!-- Cabeçalho da tabela -->
+            <thead style="background: linear-gradient(135deg, #5B0627, red); color: white;">
+                <tr>
+                    <th>Número de Série</th>
+                    <th>Modelo</th>
+                    <th>Responsável</th>
+                    <th>Setor</th>
+                    <th>Marca</th>
+                    <th>Senha</th>
+                    <th>Chip</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="celularesList"></tbody>
+        </table>
+    </div>
 
+    <!-- Modal para Editar Celular -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Celular</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="mb-3">
+                            <label for="editModelo" class="form-label">Modelo</label>
+                            <input type="text" class="form-control" id="editModelo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editResponsavel" class="form-label">Responsável</label>
+                            <input type="text" class="form-control" id="editResponsavel" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSetor" class="form-label">Setor</label>
+                            <select class="form-select" id="editSetor" required>
+                                <option value="TI">TI</option>
+                                <option value="RH">RH</option>
+                                <option value="Financeiro">Financeiro</option>
+                                <option value="Vendas">Vendas</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Transportes">Transportes</option>
+                                <option value="Coordenadora Operacional">Coordenadora Operacional</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMarca" class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="editMarca" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSenha" class="form-label">Senha</label>
+                            <input type="text" class="form-control" id="editSenha">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChip" class="form-label">Chip</label>
+                            <input type="text" class="form-control" id="editChip">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="editEmail">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editStatus" class="form-label">Status</label>
+                            <select class="form-select" id="editStatus" required>
+                                <option value="Ativo">Ativo</option>
+                                <option value="Inativo">Inativo</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let celulares = [];
+
+        // Função para buscar e exibir a lista de celulares
+        async function fetchCelulares() {
+            try {
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Erro ao buscar celulares.");
+                }
+
+                celulares = await response.json();
+                console.log("Celulares recebidos:", celulares); // Log para depuração
+
+                // Ordenar celulares: ativos primeiro, inativos no final
+                celulares.sort((a, b) => {
+                    if (a.status === 'inativo' && b.status === 'ativo') return 1;
+                    if (a.status === 'ativo' && b.status === 'inativo') return -1;
+                    return 0;
+                });
+
+                const celularesList = document.getElementById("celularesList");
+                celularesList.innerHTML = "";
+
+                if (celulares.length === 0) {
+                    // Exibe uma mensagem se não houver celulares cadastrados
+                    celularesList.innerHTML = `
+                        <tr>
+                            <td colspan="10" class="text-center">Nenhum celular cadastrado.</td>
+                        </tr>`;
+                } else {
+                    // Preenche a tabela com os celulares cadastrados
+                    celulares.forEach(celular => {
+                        celularesList.innerHTML += `
+                            <tr>
+                                <td class="custom-cell">${celular.ns}</td>
+                                <td class="custom-cell">${celular.modelo}</td>
+                                <td class="custom-cell">${celular.responsavel}</td>
+                                <td class="custom-cell">${celular.setor}</td>
+                                <td class="custom-cell">${celular.marca}</td>
+                                <td class="custom-cell">${celular.senha}</td>
+                                <td class="custom-cell">${celular.chip}</td>
+                                <td class="custom-cell">${celular.email}</td>
+                                <td class="custom-cell">${celular.status}</td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="showEditModal('${celular.ns}')" style="background-color: #5B0627; color: white;">Editar</button>
+                                    <button class="btn btn-sm" onclick="deleteCelular('${celular.ns}')" style="background-color: #5B0627; color: white;">Excluir</button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching celulares:", error);
+                alert(error.message);
+            }
+        }
+
+        // Função para adicionar um celular
+        async function addCelular() {
+            const ns = document.getElementById("ns").value;
+            const modelo = document.getElementById("modelo").value;
+            const responsavel = document.getElementById("responsavel").value;
+            const setor = document.getElementById("setor").value;
+            const marca = document.getElementById("marca").value;
+            const senha = document.getElementById("senha").value;
+            const chip = document.getElementById("chip").value;
+            const email = document.getElementById("email").value;
+            const status = document.getElementById("status").value;
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/celulares", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ ns, modelo, responsavel, setor, marca, senha, chip, email, status })
+                });
+
+                if (response.ok) {
+                    alert("Celular cadastrado com sucesso!");
+                    fetchCelulares();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Erro ao cadastrar celular.");
+                }
+            } catch (error) {
+                console.error("Error adding celular:", error);
+                alert(error.message);
+            }
+        }
+
+        // Função para mostrar o modal de edição
+        function showEditModal(ns) {
+            // Preencher o modal com os dados do celular
+            const celular = celulares.find(c => c.ns === ns);
+            document.getElementById("editModelo").value = celular.modelo;
+            document.getElementById("editResponsavel").value = celular.responsavel;
+            document.getElementById("editSetor").value = celular.setor;
+            document.getElementById("editMarca").value = celular.marca;
+            document.getElementById("editSenha").value = celular.senha;
+            document.getElementById("editChip").value = celular.chip;
+            document.getElementById("editEmail").value = celular.email;
+            document.getElementById("editStatus").value = celular.status;
+
+            // Mostrar o modal
+            const editModal = new bootstrap.Modal(document.getElementById("editModal"));
+            editModal.show();
+
+            // Adicionar evento de submit ao formulário de edição
+            document.getElementById("editForm").onsubmit = function(event) {
+                event.preventDefault();
+                editCelular(ns);
+                editModal.hide();
+            };
+        }
+
+        // Função para editar um celular
+        async function editCelular(ns) {
+            const modelo = document.getElementById("editModelo").value;
+            const responsavel = document.getElementById("editResponsavel").value;
+            const setor = document.getElementById("editSetor").value;
+            const marca = document.getElementById("editMarca").value;
+            const senha = document.getElementById("editSenha").value;
+            const chip = document.getElementById("editChip").value;
+            const email = document.getElementById("editEmail").value;
+            const status = document.getElementById("editStatus").value;
+
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ modelo, responsavel, setor, marca, senha, chip, email, status })
+                });
+
+                if (response.ok) {
+                    alert("Celular atualizado com sucesso!");
+                    fetchCelulares();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Erro ao atualizar celular.");
+                }
+            } catch (error) {
+                console.error("Error updating celular:", error);
+                alert(error.message);
+            }
+        }
+
+        // Função para excluir um celular
+        async function deleteCelular(ns) {
+            console.log("Número de série recebido para exclusão:", ns); // Log para depuração
+            if (confirm("Tem certeza que deseja excluir este celular?")) {
+                try {
+                    const response = await fetch(`http://127.0.0.1:5000/celulares/${ns}`, {
+                        method: "DELETE"
+                    });
+
+                    if (response.ok) {
+                        alert("Celular excluído com sucesso!");
+                        fetchCelulares();
+                    } else {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || "Erro ao excluir celular.");
+                    }
+                } catch (error) {
+                    console.error("Error deleting celular:", error);
+                    alert(error.message);
+                }
+            }
+        }
+
+        // Função para filtrar os celulares por setor
+        function filtrarPorSetor() {
+            const filtroSetor = document.getElementById("filtroSetor").value.toLowerCase();
+            const linhas = document.querySelectorAll("#celularesList tr");
+
+            linhas.forEach(linha => {
+                const setor = linha.querySelector("td:nth-child(4)").textContent.toLowerCase();
+                if (filtroSetor === "" || setor === filtroSetor) {
+                    linha.style.display = ""; // Mostra a linha
+                } else {
+                    linha.style.display = "none"; // Oculta a linha
+                }
+            });
+        }
+
+        // Carrega a lista de celulares ao abrir a página
+        window.onload = fetchCelulares;
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
