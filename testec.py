@@ -86,7 +86,7 @@ def update_celular(ns):
         senha = data.get("senha")
         chip = data.get("chip")
         email = data.get("email")
-        status = data.get("status")  # Novo campo status
+        status = data.get("status")  
 
         if not modelo or not responsavel or not setor or not marca:
             return jsonify({"error": "Campos obrigatórios faltando: modelo, responsavel, setor, marca"}), 400
