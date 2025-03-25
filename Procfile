@@ -1,3 +1,2 @@
-
-web: python testec.py 
-
+ * Serving Flask app 'testec'
+ * Debug mode: on
