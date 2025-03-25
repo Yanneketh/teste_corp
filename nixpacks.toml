@@ -1,0 +1,5 @@
+[build] 
+ignore = ["venv", ".cache"] 
+ECHO est  ativado.
+[phases.install] 
+commands = ["python -m pip install --user -r requirements.txt"] 
