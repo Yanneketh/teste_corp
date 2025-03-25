@@ -1,1 +1,1 @@
-web: python testec.py 
+web: /opt/venv/bin/python testec.py 
