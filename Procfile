@@ -1,1 +1,1 @@
-web: /opt/venv/bin/python testec.py 
+"web: gunicorn -w 4 -b 0.0.0.0:$PORT testec:app" 
