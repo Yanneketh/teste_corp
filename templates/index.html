@@ -52,6 +52,10 @@
             margin-top: 15px;
             margin-bottom: 15px;
         }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
     </style>
 </head>
 <body class="container mt-5">
@@ -64,18 +68,28 @@
         <form class="row g-3" onsubmit="event.preventDefault(); addCelular();">
             <div class="col-md-6 col-lg-4">
                 <label for="ns" class="form-label">Número de Série</label>
-                <input type="text" class="form-control" id="ns" required>
+                <input type="text" class="form-control" id="ns">
+                <small class="text-muted">Obrigatório se IMEI1 não for informado</small>
             </div>
             <div class="col-md-6 col-lg-4">
-                <label for="modelo" class="form-label">Modelo</label>
+                <label for="imei1" class="form-label">IMEI1</label>
+                <input type="text" class="form-control" id="imei1">
+                <small class="text-muted">Obrigatório se Número de Série não for informado</small>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="imei2" class="form-label">IMEI2</label>
+                <input type="text" class="form-control" id="imei2">
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <label for="modelo" class="form-label required-field">Modelo</label>
                 <input type="text" class="form-control" id="modelo" required>
             </div>
             <div class="col-md-6 col-lg-4">
-                <label for="responsavel" class="form-label">Responsável</label>
+                <label for="responsavel" class="form-label required-field">Responsável</label>
                 <input type="text" class="form-control" id="responsavel" required>
             </div>
             <div class="col-md-6 col-lg-4">
-                <label for="setor" class="form-label">Setor</label>
+                <label for="setor" class="form-label required-field">Setor</label>
                 <select class="form-select" id="setor" required>
                     <option value="TI">TI</option>
                     <option value="RH">RH</option>
@@ -87,7 +101,7 @@
                 </select>
             </div>
             <div class="col-md-6 col-lg-4">
-                <label for="marca" class="form-label">Marca</label>
+                <label for="marca" class="form-label required-field">Marca</label>
                 <input type="text" class="form-control" id="marca" required>
             </div>
             <div class="col-md-6 col-lg-4">
@@ -103,7 +117,7 @@
                 <input type="email" class="form-control" id="email">
             </div>
             <div class="col-md-6 col-lg-4">
-                <label for="status" class="form-label">Status</label>
+                <label for="status" class="form-label required-field">Status</label>
                 <select class="form-select" id="status" required>
                     <option value="Ativo">Ativo</option>
                     <option value="Inativo">Inativo</option>
@@ -135,6 +149,8 @@
             <thead style="background: linear-gradient(135deg, #5B0627, red); color: white;">
                 <tr>
                     <th>Número de Série</th>
+                    <th>IMEI1</th>
+                    <th>IMEI2</th>
                     <th>Modelo</th>
                     <th>Responsável</th>
                     <th>Setor</th>
@@ -161,15 +177,27 @@
                 <div class="modal-body">
                     <form id="editForm">
                         <div class="mb-3">
-                            <label for="editModelo" class="form-label">Modelo</label>
+                            <label for="editNs" class="form-label">Número de Série</label>
+                            <input type="text" class="form-control" id="editNs" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editImei1" class="form-label">IMEI1</label>
+                            <input type="text" class="form-control" id="editImei1">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editImei2" class="form-label">IMEI2</label>
+                            <input type="text" class="form-control" id="editImei2">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editModelo" class="form-label required-field">Modelo</label>
                             <input type="text" class="form-control" id="editModelo" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editResponsavel" class="form-label">Responsável</label>
+                            <label for="editResponsavel" class="form-label required-field">Responsável</label>
                             <input type="text" class="form-control" id="editResponsavel" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editSetor" class="form-label">Setor</label>
+                            <label for="editSetor" class="form-label required-field">Setor</label>
                             <select class="form-select" id="editSetor" required>
                                 <option value="TI">TI</option>
                                 <option value="RH">RH</option>
@@ -181,7 +209,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="editMarca" class="form-label">Marca</label>
+                            <label for="editMarca" class="form-label required-field">Marca</label>
                             <input type="text" class="form-control" id="editMarca" required>
                         </div>
                         <div class="mb-3">
@@ -197,7 +225,7 @@
                             <input type="email" class="form-control" id="editEmail">
                         </div>
                         <div class="mb-3">
-                            <label for="editStatus" class="form-label">Status</label>
+                            <label for="editStatus" class="form-label required-field">Status</label>
                             <select class="form-select" id="editStatus" required>
                                 <option value="Ativo">Ativo</option>
                                 <option value="Inativo">Inativo</option>
@@ -240,84 +268,134 @@
                 const celularesList = document.getElementById("celularesList");
                 celularesList.innerHTML = "";
 
-                if (celulares.length === 0) {
-                    // Exibe uma mensagem se não houver celulares cadastrados
-                    celularesList.innerHTML = `
-                        <tr>
-                            <td colspan="10" class="text-center">Nenhum celular cadastrado.</td>
-                        </tr>`;
-                } else {
-                    // Preenche a tabela com os celulares cadastrados
-                    celulares.forEach(celular => {
-                        celularesList.innerHTML += `
-                            <tr>
-                                <td class="custom-cell">${celular.ns}</td>
-                                <td class="custom-cell">${celular.modelo}</td>
-                                <td class="custom-cell">${celular.responsavel}</td>
-                                <td class="custom-cell">${celular.setor}</td>
-                                <td class="custom-cell">${celular.marca}</td>
-                                <td class="custom-cell">${celular.senha}</td>
-                                <td class="custom-cell">${celular.chip}</td>
-                                <td class="custom-cell">${celular.email}</td>
-                                <td class="custom-cell">${celular.status}</td>
-                                <td>
-                                    <button class="btn btn-sm" onclick="showEditModal('${celular.ns}')" style="background-color: #5B0627; color: white;">Editar</button>
-                                    <button class="btn btn-sm" onclick="deleteCelular('${celular.ns}')" style="background-color: #5B0627; color: white;">Excluir</button>
-                                </td>
-                            </tr>`;
-                    });
-                }
-            } catch (error) {
-                console.error("Error fetching celulares:", error);
-                alert(error.message);
+          if (celulares.length === 0) {
+    celularesList.innerHTML = `
+        <tr>
+            <td colspan="11" class="text-center">Nenhum celular cadastrado.</td>
+        </tr>`;
+} else {
+    const fragment = document.createDocumentFragment();
+    
+    celulares.forEach(celular => {
+        const tr = document.createElement('tr');
+        
+        // Função auxiliar para exibição segura
+        const displayValue = (value) => value ? escapeHtml(value) : '-';
+        
+        tr.innerHTML = `
+            <td>${displayValue(celular.ns)}</td>
+            <td>${displayValue(celular.imei1)}</td>
+            <td>${displayValue(celular.imei2)}</td>
+            <td>${displayValue(celular.modelo)}</td>
+            <td>${displayValue(celular.responsavel)}</td>
+            <td>${displayValue(celular.setor)}</td>
+            <td>${displayValue(celular.marca)}</td>
+            <td>${displayValue(celular.senha)}</td>
+            <td>${displayValue(celular.chip)}</td>
+            <td>${displayValue(celular.email)}</td>
+            <td>${displayValue(celular.status)}</td>
+            <td>
+                <button class="btn btn-sm btn-edit">Editar</button>
+                <button class="btn btn-sm btn-delete">Excluir</button>
+            </td>
+        `;
+        
+        // Atribui eventos de forma segura
+        tr.querySelector('.btn-edit').addEventListener('click', () => showEditModal(celular.ns));
+        tr.querySelector('.btn-delete').addEventListener('click', () => deleteCelular(celular.ns));
+        
+        fragment.appendChild(tr);
+    });
+    
+    celularesList.innerHTML = ''; // Limpa primeiro
+celularesList.appendChild(fragment);
+}
             }
+            catch (error) {
+                console.error("Erro ao buscar celulares:", error);
+                alert("Erro ao buscar celulares.");
+            }
+        } // <-- Fecha corretamente a função fetchCelulares
+
+    // Função para adicionar um celular
+    async function addCelular() {
+        const ns = document.getElementById("ns").value;
+        const imei1 = document.getElementById("imei1").value;
+        const imei2 = document.getElementById("imei2").value;
+        const modelo = document.getElementById("modelo").value;
+        const responsavel = document.getElementById("responsavel").value;
+        const setor = document.getElementById("setor").value;
+        const marca = document.getElementById("marca").value;
+        const senha = document.getElementById("senha").value;
+        const chip = document.getElementById("chip").value;
+        const email = document.getElementById("email").value;
+        const status = document.getElementById("status").value;
+
+        // Verifica se pelo menos um dos campos (ns ou imei1) está preenchido
+        if (!ns && !imei1) {
+            alert("É obrigatório informar o Número de Série ou IMEI1!");
+            return;
         }
 
-        // Função para adicionar um celular
-        async function addCelular() {
-            const ns = document.getElementById("ns").value;
-            const modelo = document.getElementById("modelo").value;
-            const responsavel = document.getElementById("responsavel").value;
-            const setor = document.getElementById("setor").value;
-            const marca = document.getElementById("marca").value;
-            const senha = document.getElementById("senha").value;
-            const chip = document.getElementById("chip").value;
-            const email = document.getElementById("email").value;
-            const status = document.getElementById("status").value;
+        try {
+            const response = await fetch("http://127.0.0.1:5000/celulares", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ 
+                    ns: ns || null, 
+                    imei1: imei1 || null, 
+                    imei2: imei2 || null,
+                    modelo, 
+                    responsavel, 
+                    setor, 
+                    marca, 
+                    senha, 
+                    chip, 
+                    email, 
+                    status 
+                })
+            });
 
-            try {
-                const response = await fetch("http://127.0.0.1:5000/celulares", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ ns, modelo, responsavel, setor, marca, senha, chip, email, status })
-                });
-
-                if (response.ok) {
-                    alert("Celular cadastrado com sucesso!");
-                    fetchCelulares();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Erro ao cadastrar celular.");
-                }
-            } catch (error) {
-                console.error("Error adding celular:", error);
-                alert(error.message);
+            if (response.ok) {
+                alert("Celular cadastrado com sucesso!");
+                // Limpar o formulário
+                document.getElementById("ns").value = '';
+                document.getElementById("imei1").value = '';
+                document.getElementById("imei2").value = '';
+                document.getElementById("modelo").value = '';
+                document.getElementById("responsavel").value = '';
+                document.getElementById("marca").value = '';
+                document.getElementById("senha").value = '';
+                document.getElementById("chip").value = '';
+                document.getElementById("email").value = '';
+                document.getElementById("status").value = 'Ativo';
+                fetchCelulares();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Erro ao cadastrar celular.");
             }
+        } catch (error) {
+            console.error("Error adding celular:", error);
+            alert(error.message);
         }
+    }
 
         // Função para mostrar o modal de edição
         function showEditModal(ns) {
             // Preencher o modal com os dados do celular
             const celular = celulares.find(c => c.ns === ns);
+            document.getElementById("editNs").value = celular.ns || '';
+            document.getElementById("editImei1").value = celular.imei1 || '';
+            document.getElementById("editImei2").value = celular.imei2 || '';
             document.getElementById("editModelo").value = celular.modelo;
             document.getElementById("editResponsavel").value = celular.responsavel;
             document.getElementById("editSetor").value = celular.setor;
             document.getElementById("editMarca").value = celular.marca;
-            document.getElementById("editSenha").value = celular.senha;
-            document.getElementById("editChip").value = celular.chip;
-            document.getElementById("editEmail").value = celular.email;
+            document.getElementById("editSenha").value = celular.senha || '';
+            document.getElementById("editChip").value = celular.chip || '';
+            document.getElementById("editEmail").value = celular.email || '';
             document.getElementById("editStatus").value = celular.status;
 
             // Mostrar o modal
@@ -334,6 +412,8 @@
 
         // Função para editar um celular
         async function editCelular(ns) {
+            const imei1 = document.getElementById("editImei1").value;
+            const imei2 = document.getElementById("editImei2").value;
             const modelo = document.getElementById("editModelo").value;
             const responsavel = document.getElementById("editResponsavel").value;
             const setor = document.getElementById("editSetor").value;
@@ -349,7 +429,18 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ modelo, responsavel, setor, marca, senha, chip, email, status })
+                    body: JSON.stringify({ 
+                        imei1: imei1 || null,
+                        imei2: imei2 || null,
+                        modelo, 
+                        responsavel, 
+                        setor, 
+                        marca, 
+                        senha, 
+                        chip, 
+                        email, 
+                        status 
+                    })
                 });
 
                 if (response.ok) {
@@ -394,13 +485,13 @@
             const linhas = document.querySelectorAll("#celularesList tr");
 
             linhas.forEach(linha => {
-                const setor = linha.querySelector("td:nth-child(4)").textContent.toLowerCase();
+                const setor = linha.querySelector("td:nth-child(6)").textContent.toLowerCase();
                 if (filtroSetor === "" || setor === filtroSetor) {
                     linha.style.display = ""; // Mostra a linha
                 } else {
                     linha.style.display = "none"; // Oculta a linha
                 }
-            });
+            })
         }
 
         // Carrega a lista de celulares ao abrir a página
